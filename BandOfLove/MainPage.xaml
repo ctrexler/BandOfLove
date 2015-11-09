@@ -1,0 +1,29 @@
+﻿<Page
+    x:Class="BandOfLove.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BandOfLove"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <TextBlock Text="NAME:" FontSize="48"/>
+            <TextBlock Name="bandName" Text="[ blah ]" FontSize="38"/>
+            <TextBlock Text="HARDWARE:" FontSize="48" Margin="0,100,0,0"/>
+            <TextBlock Name="hdw" Text="[ blah ]" FontSize="38"/>
+            <TextBlock Text="FIRMWARE:" FontSize="48" Margin="0,100,0,0"/>
+            <TextBlock Name="fmw" Text="[ blah ]" FontSize="38"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Add Tile" Click="Click_AddTile" Margin="0,0,20,0" />
+                <Button Content="Remove All Tiles" Click="Click_RemoveAllTiles" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Send Dialog" Click="Button_SendDialog" Margin="0,0,20,0" />
+                <Button Content="Send Message" Click="Button_SendMessage" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>
