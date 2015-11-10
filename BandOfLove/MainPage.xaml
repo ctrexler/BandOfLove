@@ -6,22 +6,41 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="#FF891337"
+    DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
     <Grid>
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Name="connecting" Text="Connecting" FontSize="48"/>
                 <TextBlock Name="check" Text="…" FontSize="48" />
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <Button Content="Add Tile" Click="Click_AddTile" Margin="0,0,20,0" />
-                <Button Content="Remove All Tiles" Click="Click_RemoveAllTiles" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <Button Content="Send Dialog" Click="Button_SendDialog" Margin="0,0,20,0" />
-                <Button Content="Send Message" Click="Button_SendMessage" />
+            <StackPanel HorizontalAlignment="Stretch">
+                <TextBlock Text="Sweet nothings:" FontFamily="Segoe WP" FontSize="32" Margin="10" />
+                <ListView x:Name="SweetNothings" ItemsSource="{Binding Messages}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Name="Container" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,-10,0,0">
+                                <TextBox Text="{Binding Text, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10,8,0,0" Width="250" FontFamily="Global User Interface" />
+                                <AppBarButton Icon="Send" Click="Button_SendMessage" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
             </StackPanel>
         </StackPanel>
     </Grid>
+
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton Icon="Save" />
+            <AppBarButton Icon="Pin" Click="Click_AddTile" />
+            <AppBarButton Icon="UnPin" Click="Click_RemoveAllTiles" />
+        </CommandBar>
+    </Page.BottomAppBar>
 </Page>

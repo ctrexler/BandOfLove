@@ -20,6 +20,7 @@ using Microsoft.Band.Notifications;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using System.Collections.ObjectModel;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
@@ -33,12 +34,27 @@ namespace BandOfLove
         IBandClient bandClient;
         BandTile tile;
         Guid tileGuid;
+        public ObservableCollection<Message> Messages { get; set; }
 
         public MainPage()
         {
             this.InitializeComponent();
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
+
+            Messages = new ObservableCollection<Message>();
+            Message m = new Message() { Text = "I love you! :)" };
+            Messages.Add(m);
+            m = new Message() { Text = "You're so cute! :D" };
+            Messages.Add(m);
+            m = new Message() { Text = "I miss you" };
+            Messages.Add(m);
+            m = new Message() { Text = "<3 <3 <3" };
+            Messages.Add(m);
+            m = new Message() { Text = "HUGGG!!!" };
+            Messages.Add(m);
+            m = new Message() { Text = "Poke!" };
+            Messages.Add(m);
 
             PairBand();
         }
@@ -167,7 +183,7 @@ namespace BandOfLove
                 // enable badging (the count of unread messages)
                 IsBadgingEnabled = true,
                 // set the name
-                Name = "TileName",
+                Name = "Band of Love",
                 // set the icons
                 SmallIcon = smallIcon,
                 TileIcon = tileIcon
@@ -315,12 +331,17 @@ namespace BandOfLove
             }
         }
 
-        async private void Button_SendDialog(object sender, RoutedEventArgs e)
+        private void Button_SendDialog(object sender, RoutedEventArgs e)
+        {
+            SendDialog("From Corbin", ((((sender as Button).Parent) as StackPanel).Children.First() as TextBox).Text);
+        }
+
+        async private void SendMessage(string title = "Dialog Title", string body = "Dialog body")
         {
             try
             {
                 // send a dialog to the Band for one of our tiles
-                await bandClient.NotificationManager.ShowDialogAsync(tileGuid, "I love you :)", "- Corbin");
+                await bandClient.NotificationManager.SendMessageAsync(tileGuid, title, body, DateTimeOffset.Now, MessageFlags.ShowDialog);
             }
             catch (BandException ex)
             {
@@ -328,18 +349,9 @@ namespace BandOfLove
             }
         }
 
-        async private void Button_SendMessage(object sender, RoutedEventArgs e)
+        private void Button_SendMessage(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                // Send a message to the Band for one of our tiles,
-                // and show it as a dialog.
-                await bandClient.NotificationManager.SendMessageAsync(tileGuid, "From Corbin", "I love you! :D", DateTimeOffset.Now, MessageFlags.ShowDialog);
-            }
-            catch (BandException ex)
-            {
-                // handle a Band connection exception
-            }
+            SendMessage("From Corbin", ((((sender as Button).Parent) as StackPanel).Children.First() as TextBox).Text);
         }
     }
 }
