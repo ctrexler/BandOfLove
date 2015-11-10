@@ -18,6 +18,8 @@ using Microsoft.Band.Tiles;
 using Microsoft.Band.Tiles.Pages;
 using Microsoft.Band.Notifications;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.Storage;
+using Windows.Storage.Streams;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
@@ -87,6 +89,13 @@ namespace BandOfLove
             {
                 // handle a Band connection exception
             }
+
+            // Subscribe to events
+            bandClient.TileManager.TileOpened += EventHandler_TileOpened;
+            //bandClient.TileManager.TileClosed += EventHandler_TileClosed;
+            //bandClient.TileManager.TileButtonPushed += EventHandler_TileButtonPushed;  
+            // Start listening for events
+            await bandClient.TileManager.StartReadingsAsync();
         }
 
         // Define symbolic constants for indexes to each layout that
@@ -128,12 +137,26 @@ namespace BandOfLove
             
             // Create the small and tile icons from writable bitmaps.
             // Small icons are 24x24 pixels.
-            WriteableBitmap smallIconBitmap = new WriteableBitmap(24, 24);
-            BandIcon smallIcon = smallIconBitmap.ToBandIcon();
+            BandIcon smallIcon;
+            StorageFile imageFile_small = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Band_SmallIcon.png"));
+            using (IRandomAccessStream fileStream = await imageFile_small.OpenAsync(FileAccessMode.Read))
+            {
+                WriteableBitmap bitmap = new WriteableBitmap(24, 24);
+                await bitmap.SetSourceAsync(fileStream);
+                smallIcon = bitmap.ToBandIcon();
+            }
+
             // Tile icons are 46x46 pixels for Microsoft Band 1, and 48x48 pixels
             // for Microsoft Band 2.
-            WriteableBitmap tileIconBitmap = new WriteableBitmap(46, 46);
-            BandIcon tileIcon = tileIconBitmap.ToBandIcon();
+            BandIcon tileIcon;
+            StorageFile imageFile_large = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Band_LargeIcon.png"));
+            using (IRandomAccessStream fileStream = await imageFile_large.OpenAsync(FileAccessMode.Read))
+            {
+                WriteableBitmap bitmap = new WriteableBitmap(48, 48);
+                await bitmap.SetSourceAsync(fileStream);
+                tileIcon = bitmap.ToBandIcon();
+            }
+
             // create a new Guid for the tile
             Guid newGuid = Guid.NewGuid();
             var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
@@ -245,13 +268,6 @@ namespace BandOfLove
             {
                 // handle a Band connection exception
             }
-
-            // Subscribe to events
-            bandClient.TileManager.TileOpened += EventHandler_TileOpened;
-            //bandClient.TileManager.TileClosed += EventHandler_TileClosed;
-            //bandClient.TileManager.TileButtonPushed += EventHandler_TileButtonPushed;  
-            // Start listening for events
-            await bandClient.TileManager.StartReadingsAsync();
         }
 
         async private void Click_RemoveAllTiles(object sender, RoutedEventArgs e)
@@ -283,7 +299,7 @@ namespace BandOfLove
             // e.TileEvent.Timestamp is the DateTimeOffset of the event.
             //
             // handle the event
-            SendDialog();
+            //SendDialog();
         }
 
         async private void SendDialog(string title = "Dialog Title", string body = "Dialog body")
