@@ -10,12 +10,10 @@
 
     <Grid>
         <StackPanel Orientation="Vertical">
-            <TextBlock Text="NAME:" FontSize="48"/>
-            <TextBlock Name="bandName" Text="[ blah ]" FontSize="38"/>
-            <TextBlock Text="HARDWARE:" FontSize="48" Margin="0,100,0,0"/>
-            <TextBlock Name="hdw" Text="[ blah ]" FontSize="38"/>
-            <TextBlock Text="FIRMWARE:" FontSize="48" Margin="0,100,0,0"/>
-            <TextBlock Name="fmw" Text="[ blah ]" FontSize="38"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Name="connecting" Text="Connecting" FontSize="48"/>
+                <TextBlock Name="check" Text="…" FontSize="48" />
+            </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <Button Content="Add Tile" Click="Click_AddTile" Margin="0,0,20,0" />
                 <Button Content="Remove All Tiles" Click="Click_RemoveAllTiles" />

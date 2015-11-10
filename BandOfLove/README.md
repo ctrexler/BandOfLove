@@ -1,0 +1,3 @@
+# BandOfLove
+A MSFT Band app for couples to trade ILYs
+[ CURRENTLY NON-FUNCTIONAL! EXPERIMENTING WITH THE SDK FIRST! ]

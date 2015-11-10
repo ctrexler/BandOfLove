@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -65,16 +66,17 @@ namespace BandOfLove
                 bandClient = await BandClientManager.Instance.ConnectAsync(pairedBands[0]);
 
                 // do work after successful connect
-                string fwVersion;
-                string hwVersion;
                 try
                 {
-                    fwVersion = await bandClient.GetFirmwareVersionAsync();
-                    hwVersion = await bandClient.GetHardwareVersionAsync();
                     // do work with firmware & hardware versions
-                    bandName.Text = pairedBands[0].Name;
-                    hdw.Text = hwVersion;
-                    fmw.Text = fwVersion;
+                    connecting.Text = "Connected";
+                    check.Text = " ✔";
+
+                    var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+                    if (localSettings.Values.ContainsKey("BOLGuid"))
+                    {
+                        tileGuid = (Guid)localSettings.Values["BOLGuid"];
+                    }
                 }
                 catch (BandException ex)
                 {
@@ -111,24 +113,19 @@ namespace BandOfLove
         {
             try
             {
-                // get the current set of tiles
-                IEnumerable<BandTile> tiles = await bandClient.TileManager.GetTilesAsync();
-            }
-            catch (BandException ex)
-            {
-                // handle a Band connection exception
-            }
-
-            try
-            {
                 // determine the number of available tile slots on the Band
                 int tileCapacity = await bandClient.TileManager.GetRemainingTileCapacityAsync();
+                if (tileCapacity < 1)
+                {
+                    SendDialog("You've already", "added this tile :)");
+                    return;
+                }
             }
             catch (BandException ex)
             {
                 // handle a Band connection exception }
             }
-
+            
             // Create the small and tile icons from writable bitmaps.
             // Small icons are 24x24 pixels.
             WriteableBitmap smallIconBitmap = new WriteableBitmap(24, 24);
@@ -138,7 +135,9 @@ namespace BandOfLove
             WriteableBitmap tileIconBitmap = new WriteableBitmap(46, 46);
             BandIcon tileIcon = tileIconBitmap.ToBandIcon();
             // create a new Guid for the tile
-            tileGuid = Guid.NewGuid();
+            Guid newGuid = Guid.NewGuid();
+            var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+            localSettings.Values["BOLGuid"] = tileGuid = newGuid;
             // create a new tile with a new Guid
             tile = new BandTile(tileGuid)
             {
@@ -287,12 +286,12 @@ namespace BandOfLove
             SendDialog();
         }
 
-        async private void SendDialog()
+        async private void SendDialog(string title = "Dialog Title", string body = "Dialog body")
         {
             try
             {
                 // send a dialog to the Band for one of our tiles
-                await bandClient.NotificationManager.ShowDialogAsync(tileGuid, "Dialog title", "Dialog body");
+                await bandClient.NotificationManager.ShowDialogAsync(tileGuid, title, body);
             }
             catch (BandException ex)
             {
@@ -305,7 +304,7 @@ namespace BandOfLove
             try
             {
                 // send a dialog to the Band for one of our tiles
-                await bandClient.NotificationManager.ShowDialogAsync(tileGuid, "Dialog title", "Dialog body");
+                await bandClient.NotificationManager.ShowDialogAsync(tileGuid, "I love you :)", "- Corbin");
             }
             catch (BandException ex)
             {
@@ -319,10 +318,7 @@ namespace BandOfLove
             {
                 // Send a message to the Band for one of our tiles,
                 // and show it as a dialog.
-                for (int i = 0; i < 100; i++)
-                {
-                    await bandClient.NotificationManager.SendMessageAsync(tileGuid, "Message title", "Message body", DateTimeOffset.Now, MessageFlags.ShowDialog);
-                }
+                await bandClient.NotificationManager.SendMessageAsync(tileGuid, "From Corbin", "I love you! :D", DateTimeOffset.Now, MessageFlags.ShowDialog);
             }
             catch (BandException ex)
             {
