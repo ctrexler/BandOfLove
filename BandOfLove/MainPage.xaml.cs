@@ -21,6 +21,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using System.Collections.ObjectModel;
+using Windows.ApplicationModel.Background;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=391641
 
@@ -133,6 +134,22 @@ namespace BandOfLove
             Message2 = 2,
             // Id for the 2nd message text block
         };
+
+        //async void RegisterBackgroundTasks()
+        //{
+        //    var access = await BackgroundExecutionManager.RequestAccessAsync();
+        //    if (access == BackgroundAccessStatus.Denied)
+        //    {
+        //        // Handle
+        //    }
+
+        //    BackgroundTaskBuilder taskBuilder = new BackgroundTaskBuilder();
+        //    taskBuilder.Name = "BackgroundTask";
+
+        //    SystemTrigger trigger = new SystemTrigger(SystemTriggerType.UserAway, false);
+        //    taskBuilder.SetTrigger(trigger);
+        //    taskBuilder.AddCondition(new SystemCondition(SystemConditionType.UserNotPresent));
+        //}
 
         async private void Click_AddTile(object sender, RoutedEventArgs e)
         {
