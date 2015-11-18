@@ -35,27 +35,12 @@ namespace BandOfLove
         IBandClient bandClient;
         BandTile tile;
         Guid tileGuid;
-        public ObservableCollection<Message> Messages { get; set; }
 
         public MainPage()
         {
             this.InitializeComponent();
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
-
-            Messages = new ObservableCollection<Message>();
-            Message m = new Message() { Text = "I love you! :)" };
-            Messages.Add(m);
-            m = new Message() { Text = "You're so cute! :D" };
-            Messages.Add(m);
-            m = new Message() { Text = "I miss you" };
-            Messages.Add(m);
-            m = new Message() { Text = "<3 <3 <3" };
-            Messages.Add(m);
-            m = new Message() { Text = "HUGGG!!!" };
-            Messages.Add(m);
-            m = new Message() { Text = "Poke!" };
-            Messages.Add(m);
 
             PairBand();
         }
@@ -90,6 +75,8 @@ namespace BandOfLove
                     // do work with firmware & hardware versions
                     connecting.Text = "Connected";
                     check.Text = " ✔";
+
+                    IsPinned();
 
                     var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
                     if (localSettings.Values.ContainsKey("BOLGuid"))
@@ -151,7 +138,7 @@ namespace BandOfLove
         //    taskBuilder.AddCondition(new SystemCondition(SystemConditionType.UserNotPresent));
         //}
 
-        async private void Click_AddTile(object sender, RoutedEventArgs e)
+        async private void IsPinned()
         {
             try
             {
@@ -159,7 +146,31 @@ namespace BandOfLove
                 int tileCapacity = await bandClient.TileManager.GetRemainingTileCapacityAsync();
                 if (tileCapacity < 1)
                 {
-                    SendDialog("You've already", "added this tile :)");
+                    AppBarButton_Pin.Visibility = Visibility.Collapsed;
+                    AppBarButton_UnPin.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    AppBarButton_UnPin.Visibility = Visibility.Collapsed;
+                    AppBarButton_Pin.Visibility = Visibility.Visible;
+                }
+
+            }
+            catch (BandException ex)
+            {
+                // handle a Band connection exception }
+            }
+        }
+
+        async private void Click_AddTile(object sender, RoutedEventArgs e)
+        {
+            AppBarButton_Pin.IsEnabled = false;
+            try
+            {
+                // determine the number of available tile slots on the Band
+                int tileCapacity = await bandClient.TileManager.GetRemainingTileCapacityAsync();
+                if (tileCapacity < 1)
+                {
                     return;
                 }
             }
@@ -257,6 +268,10 @@ namespace BandOfLove
                 if (await bandClient.TileManager.AddTileAsync(tile))
                 {
                     // tile was successfully added
+                    AppBarButton_Pin.Visibility = Visibility.Collapsed;
+                    AppBarButton_UnPin.Visibility = Visibility.Visible;
+                    AppBarButton_UnPin.IsEnabled = true;
+
                     // can proceed to set tile content with SetPagesAsync
                 }
                 else
@@ -305,6 +320,7 @@ namespace BandOfLove
 
         async private void Click_RemoveAllTiles(object sender, RoutedEventArgs e)
         {
+            AppBarButton_UnPin.IsEnabled = false;
             try
             {
                 // get the current set of tiles
@@ -315,6 +331,9 @@ namespace BandOfLove
                     if (await bandClient.TileManager.RemoveTileAsync(t))
                     {
                         // do work if the tile was successfully removed
+                        AppBarButton_UnPin.Visibility = Visibility.Collapsed;
+                        AppBarButton_Pin.Visibility = Visibility.Visible;
+                        AppBarButton_Pin.IsEnabled = true;
                     }
                 }
             }
@@ -362,13 +381,44 @@ namespace BandOfLove
             }
             catch (BandException ex)
             {
-                // handle a Band connection exception }
+                // handle a Band connection exception
             }
+        }
+
+        private void Click_AddSweetNothing(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Button_AddSweetNothing(object sender, RoutedEventArgs e)
+        {
+            ViewModel.instance.SweetNothings.Add(
+                new SweetNothing
+                {
+                    Message = TextBox_Message.Text
+                }
+            );
+        }
+
+        private void Button_Cancel(object sender, RoutedEventArgs e)
+        {
+            Flyout_AddSweetNothing.Hide();
+        }
+
+        private void Click_Edit(object sender, RoutedEventArgs e)
+        {
+            ViewModel.instance.IsEditMode = !ViewModel.instance.IsEditMode;
+        }
+
+        private void TextBlock_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            ViewModel.instance.SelectedMessage = (SweetNothingsBlocks.SelectedItem as SweetNothing);
+            System.Diagnostics.Debug.WriteLine("SELECTED MESSAGE: {0}", ViewModel.instance.SelectedMessage.Message);
         }
 
         private void Button_SendMessage(object sender, RoutedEventArgs e)
         {
-            SendMessage("From Corbin", ((((sender as Button).Parent) as StackPanel).Children.First() as TextBox).Text);
+            SendMessage(ViewModel.instance.Sender, ViewModel.instance.SelectedMessage.Message);
         }
     }
 }

@@ -7,11 +7,11 @@ using Windows.ApplicationModel.Background;
 
 namespace BackgroundTask
 {
-    public sealed class BOLBackgroundTask : IBackgroundTask
+    public sealed class BOLBackgroundTask //: IBackgroundTask
     {
-        public async void Run(IBackgroundTaskInstance instance)
-        {
+        //public async void Run(IBackgroundTaskInstance instance)
+        //{
 
-        }
+        //}
     }
 }

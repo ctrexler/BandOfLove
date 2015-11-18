@@ -7,17 +7,21 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="#FF891337"
-    DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    DataContext="{StaticResource ViewModel}">
 
+    <Page.Resources>
+        <local:SweetNothingVisibilityConverter x:Key="SweetNothingVisibilityConverter" />
+    </Page.Resources>
+    
     <Grid>
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Name="connecting" Text="Connecting" FontSize="48"/>
-                <TextBlock Name="check" Text="…" FontSize="48" />
+                <TextBlock Name="connecting" Text="Connecting" FontSize="18"/>
+                <TextBlock Name="check" Text="…" FontSize="18" />
             </StackPanel>
             <StackPanel HorizontalAlignment="Stretch">
-                <TextBlock Text="Sweet nothings:" FontFamily="Segoe WP" FontSize="32" Margin="10" />
-                <ListView x:Name="SweetNothings" ItemsSource="{Binding Messages}">
+                <TextBox Text="{Binding Sender, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="0,5,0,0" />
+                <ListView x:Name="SweetNothingsBlocks" ItemsSource="{Binding SweetNothings}" Visibility="{Binding IsEditMode, Converter={StaticResource SweetNothingVisibilityConverter}, ConverterParameter='block', FallbackValue=Visible}">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -25,22 +29,83 @@
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Name="Container" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,-10,0,0">
-                                <TextBox Text="{Binding Text, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="10,8,0,0" Width="250" FontFamily="Global User Interface" />
-                                <AppBarButton Icon="Send" Click="Button_SendMessage" />
-                            </StackPanel>
+                            <Grid>
+                                <TextBlock Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}" FontSize="30" FontFamily="Segoe WP" FontWeight="Light" Foreground="#FFFF7BBB" Tapped="TextBlock_Tapped" Margin="10" />
+                            </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
+                <ListView x:Name="SweetNothingsBoxes" ItemsSource="{Binding SweetNothings}" Visibility="{Binding IsEditMode, Converter={StaticResource SweetNothingVisibilityConverter}, ConverterParameter='box', FallbackValue=Collapsed}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <TextBox Text="{Binding Message, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="10" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+            <StackPanel Background="Black" Height="106" Width="298" Orientation="Horizontal" Margin="10">
+                <StackPanel Background="Black" Height="106" Width="40">
+                    <Image Source="Assets/Band_SmallIcon.png" Height="20" Width="20" Margin="10,40,0,0" />
+                </StackPanel>
+                <StackPanel Background="Black" Height="106" Width="258" Orientation="Vertical" VerticalAlignment="Bottom">
+                    <Grid Height="106" Width="201" HorizontalAlignment="Left">
+                        <Grid Height="72">
+                            <Grid VerticalAlignment="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="24"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="{Binding Sender, UpdateSourceTrigger=PropertyChanged}" FontSize="20" Foreground="#FF2A98FF" Margin="10,0,0,0" />
+                                <Grid Grid.Row="1" HorizontalAlignment="Left" Width="199">
+                                    <TextBlock Text="{Binding SelectedMessage.Message, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" FontSize="20" Margin="10,0,0,0"/>                                    
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
     </Grid>
 
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton Icon="Save" />
-            <AppBarButton Icon="Pin" Click="Click_AddTile" />
-            <AppBarButton Icon="UnPin" Click="Click_RemoveAllTiles" />
+            <AppBarButton Icon="Send" Click="Button_SendMessage" />
+            <AppBarButton Icon="Add" Click="Click_AddSweetNothing">
+                <AppBarButton.Flyout>
+                    <Flyout x:Name="Flyout_AddSweetNothing">
+                        <Grid Height="Auto">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Title Panel -->
+                                <TextBlock Grid.Row="0" Text="add message" Margin="10,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+
+                            <!--TODO: Content should be placed within the following grid-->
+                            <Grid Grid.Row="1" Margin="19,9.5,19,0">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBox x:Name="TextBox_Message" HorizontalAlignment="Center" Margin="11,0,10,30" PlaceholderText="i love you" Width="325"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Content="add" Width="150" Click="Button_AddSweetNothing" />
+                                        <Button Content="cancel" Width="150" Click="Button_Cancel" Margin="25,0,0,0" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Flyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <AppBarButton Icon="Edit" Click="Click_Edit" />
+            <AppBarButton Name="AppBarButton_Pin" Icon="Pin" Visibility="Collapsed" Click="Click_AddTile" />
+            <AppBarButton Name="AppBarButton_UnPin" Icon="UnPin" Visibility="Collapsed" Click="Click_RemoveAllTiles" />
         </CommandBar>
     </Page.BottomAppBar>
 </Page>
